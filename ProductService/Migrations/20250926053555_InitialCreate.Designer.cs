@@ -11,7 +11,7 @@ using ProductService.Data;
 
 namespace ProductService.Migrations
 {
-    [DbContext(typeof(AppDbContext))]
+    [DbContext(typeof(ProductDbContext))]
     [Migration("20250926053555_InitialCreate")]
     partial class InitialCreate
     {

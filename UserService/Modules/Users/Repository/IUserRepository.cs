@@ -1,4 +1,4 @@
-﻿using Common.Dto;
+﻿using Common.Pagination;
 using UserService.Modules.Users.Dto;
 
 namespace UserService.Modules.Users.Repository

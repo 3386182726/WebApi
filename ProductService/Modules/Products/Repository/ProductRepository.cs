@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using Common.Dto;
+using Common.Pagination;
 using Microsoft.EntityFrameworkCore;
 using ProductService.Data;
 using ProductService.Modules.Products.Dto;
@@ -7,7 +7,7 @@ using ProductService.Modules.Products.Model;
 
 namespace ProductService.Modules.Products.Repository
 {
-    public class ProductRepository(AppDbContext dbContext) : IProductRepository
+    public class ProductRepository(ProductDbContext dbContext) : IProductRepository
     {
         public async Task<Product?> GetAsync(string id)
         {

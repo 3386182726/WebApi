@@ -1,4 +1,6 @@
-﻿using Common.Dto;
+﻿using Common.Pagination;
+using Contracts.Event.User;
+using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using UserService.Modules.Users.Dto;
 using UserService.Modules.Users.Repository;
@@ -8,7 +10,8 @@ namespace UserService.Modules.Users.Service
     public class UserService(
         UserManager<User> userManager,
         SignInManager<User> signInManager,
-        IUserRepository userRepository
+        IUserRepository userRepository,
+        IPublishEndpoint publish
     ) : IUserService
     {
         public async Task<User?> ValidateUserAsync(LoginDto dto)
@@ -28,6 +31,11 @@ namespace UserService.Modules.Users.Service
         public async Task<PagedResult<UserResultDto>> GetUsersAsync(PagedRequest request)
         {
             return await userRepository.GetUsersAsync(request);
+        }
+
+        public async Task PublishUserUpsertEventAsync(UserUpsertEvent user)
+        {
+            await publish.Publish(user);
         }
     }
 }

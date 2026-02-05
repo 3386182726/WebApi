@@ -8,7 +8,7 @@ using UserService.Modules.Roles.Dto;
 
 namespace UserService.Modules.Roles.Repository
 {
-    public class RoleRepository(AppDbContext appDbContext) : IRoleRepository
+    public class RoleRepository(UserDbContext appDbContext) : IRoleRepository
     {
         public async Task<List<string>> GetMenusByRoleIdAsync(string roleId)
         {

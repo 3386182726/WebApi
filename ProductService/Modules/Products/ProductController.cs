@@ -1,4 +1,4 @@
-﻿using Common.Dto;
+﻿using Common.Pagination;
 using Common.Service;
 using Microsoft.AspNetCore.Mvc;
 using ProductService.Modules.Products.Dto;
@@ -34,7 +34,7 @@ namespace ProductService.Modules.Products
 
         // POST: api/product
         [HttpPost]
-        public async Task<ActionResult> Save([FromBody] ProductPostDto postDto)
+        public async Task<ActionResult> Post([FromBody] ProductPostDto postDto)
         {
             var product = new Product()
             {

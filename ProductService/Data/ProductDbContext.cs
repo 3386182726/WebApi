@@ -5,9 +5,9 @@ using ProductService.Modules.Products.Model;
 
 namespace ProductService.Data
 {
-    public class AppDbContext : DbContext
+    public class ProductDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options)
+        public ProductDbContext(DbContextOptions<ProductDbContext> options)
             : base(options) { }
 
         public DbSet<Product> Products { get; set; }

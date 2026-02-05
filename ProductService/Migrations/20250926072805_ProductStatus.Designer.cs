@@ -11,7 +11,7 @@ using ProductService.Data;
 
 namespace ProductService.Migrations
 {
-    [DbContext(typeof(AppDbContext))]
+    [DbContext(typeof(ProductDbContext))]
     [Migration("20250926072805_ProductStatus")]
     partial class ProductStatus
     {

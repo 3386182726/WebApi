@@ -49,6 +49,24 @@ namespace ApiGateway
                             Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
                         ),
                     };
+
+                    // 当 Token 通过验证后执行此事件
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnTokenValidated = context =>
+                        {
+                            var userId = context.Principal?.FindFirst("sub")?.Value
+                                         ?? context.Principal?.FindFirst("UserId")?.Value;
+
+                            if (!string.IsNullOrEmpty(userId))
+                            {
+                                // 注入到 HttpContext，以便中间件读取
+                                context.HttpContext.Items["UserId"] = userId;
+                            }
+
+                            return Task.CompletedTask;
+                        }
+                    };
                 });
 
             builder.Services.AddCors(options =>
@@ -72,22 +90,31 @@ namespace ApiGateway
 
             // 使用 CORS
             app.UseCors("AllowFrontend");
-            app.Use(
-                async (context, next) =>
-                {
-                    if (context.Request.Method == "OPTIONS")
-                    {
-                        context.Response.StatusCode = 200;
-                        await context.Response.CompleteAsync();
-                    }
-                    else
-                    {
-                        await next();
-                    }
-                }
-            );
+
             app.UseAuthentication(); // 必须在 UseAuthorization 前
             app.UseAuthorization();
+
+            app.Use(async (context, next) =>
+            {
+                // 处理预检请求（CORS OPTIONS）
+                if (context.Request.Method == "OPTIONS")
+                {
+                    context.Response.StatusCode = 200;
+                    await context.Response.CompleteAsync();
+                    return;
+                }
+                // 把 Token 中解析出的 UserId 注入下游 Header
+                if (context.Items.ContainsKey("UserId"))
+                {
+                    var userId = context.Items["UserId"]?.ToString();
+                    if (!string.IsNullOrEmpty(userId))
+                    {
+                        context.Request.Headers["X-UserId"] = userId;
+                    }
+                }
+                // 继续执行管道
+                await next();
+            });
 
             // 使用 Ocelot
             await app.UseOcelot();

@@ -11,7 +11,7 @@ using UserService.Data;
 
 namespace UserService.Migrations
 {
-    [DbContext(typeof(AppDbContext))]
+    [DbContext(typeof(UserDbContext))]
     [Migration("20250918095131_RoleMenu")]
     partial class RoleMenu
     {

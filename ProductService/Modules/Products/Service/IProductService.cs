@@ -1,4 +1,4 @@
-﻿using Common.Dto;
+﻿using Common.Pagination;
 using ProductService.Modules.Products.Dto;
 using ProductService.Modules.Products.Model;
 

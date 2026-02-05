@@ -7,7 +7,7 @@ using UserService.Modules.Users;
 
 namespace UserService.Data
 {
-    public class AppDbContext(DbContextOptions<AppDbContext> options)
+    public class UserDbContext(DbContextOptions<UserDbContext> options)
         : IdentityDbContext<User, IdentityRole, string>(options)
     {
         public DbSet<Menu> Menus { get; set; }

@@ -1,12 +1,12 @@
 ﻿using System.Reflection;
-using Common.Dto;
+using Common.Pagination;
 using Microsoft.EntityFrameworkCore;
 using UserService.Data;
 using UserService.Modules.Users.Dto;
 
 namespace UserService.Modules.Users.Repository
 {
-    public class UserRepository(AppDbContext dbContext) : IUserRepository
+    public class UserRepository(UserDbContext dbContext) : IUserRepository
     {
         public enum UserSortField
         {

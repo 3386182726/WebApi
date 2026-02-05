@@ -4,7 +4,7 @@ using UserService.Modules.Menus.Model;
 
 namespace UserService.Modules.Menus.Repository
 {
-    public class MenuRepository(AppDbContext appDbContext) : IMenuRepository
+    public class MenuRepository(UserDbContext appDbContext) : IMenuRepository
     {
         public async Task<Menu?> GetAsync(string id)
         {

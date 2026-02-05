@@ -1,4 +1,4 @@
-﻿namespace Common.Dto
+﻿namespace Common.Pagination
 {
     public class PagedResult<T>
     {

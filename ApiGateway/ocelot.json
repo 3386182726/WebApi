@@ -5,8 +5,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 5001
+          "Host": "userservice",
+          "Port": 8080 //5001 
         }
       ],
       "UpstreamPathTemplate": "/api/user/{everything}",
@@ -17,8 +17,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 5002
+          "Host": "productservice",
+          "Port": 8080 //5002
         }
       ],
       "UpstreamPathTemplate": "/api/product/{everything}",
@@ -36,8 +36,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 5002
+          "Host": "productservice",
+          "Port": 8080
         }
       ],
       "UpstreamPathTemplate": "/product/uploads/{everything}",
@@ -45,6 +45,6 @@
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "http://localhost:5000"
+    "BaseUrl": "http://localhost:8080"
   }
 }

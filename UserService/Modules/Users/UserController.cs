@@ -1,14 +1,16 @@
-﻿using System.Data;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using Common.Dto;
+﻿using Common.Pagination;
+using Contracts.Event.User;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.Data;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using UserService.Modules.Roles.Service;
 using UserService.Modules.Users.Dto;
 using UserService.Modules.Users.Service;
@@ -47,6 +49,14 @@ namespace UserService.Modules.Users
             var result = await userManager.CreateAsync(user, dto.Password);
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
+            var userUpsertEvent = new UserUpsertEvent
+            {
+                UserId = user.Id,
+                UserName = user.UserName,
+                Name = user?.Name,
+                IsDeleted = false
+            };
+            await userService.PublishUserUpsertEventAsync(userUpsertEvent);
             return Ok("注册成功");
         }
 
@@ -135,6 +145,15 @@ namespace UserService.Modules.Users
                     return BadRequest(addRolesResult.Errors);
             }
 
+            var userUpsertEvent = new UserUpsertEvent
+            {
+                UserId = user.Id,
+                UserName = user.UserName,
+                Name = user?.Name,
+                IsDeleted =false
+            };
+            await userService.PublishUserUpsertEventAsync(userUpsertEvent);
+
             return Ok("成功");
         }
 
@@ -191,6 +210,14 @@ namespace UserService.Modules.Users
                 var errors = result.Errors.Select(e => e.Description);
                 return BadRequest(new { message = "删除失败", errors });
             }
+            var userUpsertEvent = new UserUpsertEvent
+            {
+                UserId = user.Id,
+                UserName = user?.UserName??string.Empty,
+                Name = user?.Name,
+                IsDeleted = true
+            };
+            await userService.PublishUserUpsertEventAsync(userUpsertEvent);
             return Ok("删除成功");
         }
     }

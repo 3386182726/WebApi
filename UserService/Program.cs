@@ -1,9 +1,10 @@
-using System.Text;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using UserService.Data;
 using UserService.Modules.Roles;
 using UserService.Modules.Users;
@@ -20,13 +21,13 @@ namespace UserService
 
             builder.Services.AddControllers();
 
-            builder.Services.AddDbContext<AppDbContext>(options =>
+            builder.Services.AddDbContext<UserDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
             );
 
             builder
                 .Services.AddIdentity<User, IdentityRole>()
-                .AddEntityFrameworkStores<AppDbContext>()
+                .AddEntityFrameworkStores<UserDbContext>()
                 .AddDefaultTokenProviders();
 
             // Ìí¼Ó Cookie ÈÏÖ¤
@@ -82,6 +83,20 @@ namespace UserService
             builder.Services.AddUserService();
             builder.Services.AddMenuService();
             builder.Services.AddRoleService();
+
+            builder.Services.AddMassTransit(x =>
+            {
+                x.UsingRabbitMq((context, cfg) =>
+                {
+                    cfg.Host("localhost", "/", host =>
+                    {
+                        host.Username("guest");
+                        host.Password("guest");
+                    });
+                });
+            });
+
+            builder.WebHost.UseUrls("http://0.0.0.0:8080");
 
             var app = builder.Build();
             app.MapGet("/", () => "Hello User!");

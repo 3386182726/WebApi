@@ -42,6 +42,18 @@
       ],
       "UpstreamPathTemplate": "/product/uploads/{everything}",
       "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/note/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "noteservice",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/api/note/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
     }
   ],
   "GlobalConfiguration": {

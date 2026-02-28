@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	<TestPlatform>dotnet</TestPlatform>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <EnableShadowCopy>false</EnableShadowCopy>
+	<!-- 确保所有锁定的程序集都复制到输出目录 -->
+	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+
+	<!-- 确保生成 deps.json 文件（虽然默认是 true，但显式声明有时有用） -->
+	<GenerateDependencyFile>true</GenerateDependencyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+    <PackageReference Include="Testcontainers" Version="4.10.0" />
+    <PackageReference Include="Testcontainers.MsSql" Version="4.10.0" />
+    <PackageReference Include="xunit" Version="2.5.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NoteService\NoteService.csproj" />
+  </ItemGroup>
+</Project>

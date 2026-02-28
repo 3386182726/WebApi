@@ -17,7 +17,9 @@ services:
     build:
       context: .
       dockerfile: ApiGateway/Dockerfile
-
+    ports:
+      - "8080:8080"
+  
 
   noteservice:
     image: ${DOCKER_REGISTRY-}noteservice

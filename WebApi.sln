@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoteService", "NoteService\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contracts", "Contracts\Contracts.csproj", "{5FD12D67-EBF8-4020-9300-05045D758964}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoteService.Test", "NoteService.Test\NoteService.Test.csproj", "{BFB0AED6-AA38-CA23-5B33-88196E76736B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{5FD12D67-EBF8-4020-9300-05045D758964}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5FD12D67-EBF8-4020-9300-05045D758964}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5FD12D67-EBF8-4020-9300-05045D758964}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFB0AED6-AA38-CA23-5B33-88196E76736B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFB0AED6-AA38-CA23-5B33-88196E76736B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFB0AED6-AA38-CA23-5B33-88196E76736B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFB0AED6-AA38-CA23-5B33-88196E76736B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

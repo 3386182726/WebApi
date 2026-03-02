@@ -3,6 +3,7 @@ namespace NoteService.Modules.Notes.Dto
 {
     public class NoteResponse
     {
+        public required string Id { get; set; }
         public required string Name { get; set; }
         public string? Content { get; set; }
         public NoteCategory? Category { get; set; }

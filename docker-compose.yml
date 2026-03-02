@@ -26,4 +26,6 @@ services:
     build:
       context: .
       dockerfile: NoteService/Dockerfile
+    volumes:
+      - ./NoteService/wwwroot/uploads:/app/wwwroot/uploads
 

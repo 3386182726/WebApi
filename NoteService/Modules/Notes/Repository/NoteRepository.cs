@@ -28,6 +28,7 @@ namespace NoteService.Modules.Notes.Repository
              join u in dbContext.Users on n.CreaterId equals u.OldUserId
              select new NoteResponse
              {
+                 Id = n.Id,
                  Name = n.Name,
                  Category = n.Category,
                  Content = n.Content,
@@ -78,20 +79,29 @@ namespace NoteService.Modules.Notes.Repository
         }
         public void Create(Note entity)
         {
-            throw new NotImplementedException();
+            dbContext.Notes.Add(entity);
         }
         public void Update(Note entity)
         {
-            throw new NotImplementedException();
+            dbContext.Notes.Update(entity);
         }
         public void Remove(Note entity)
         {
-            throw new NotImplementedException();
+            dbContext.Notes.Remove(entity);
         }
 
-        public Task<int> SaveChangesAsync()
+        public async Task<int> SaveChangesAsync()
         {
-            throw new NotImplementedException();
+            try { 
+                var s = await dbContext.SaveChangesAsync();
+                return s;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error saving changes: " + ex.Message);
+                throw; // 重新抛出异常以便上层处理
+            }
+            return await dbContext.SaveChangesAsync();
         }
 
     }

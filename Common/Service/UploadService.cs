@@ -4,6 +4,7 @@
     {
         public async Task<string> UploadAsync(IFormFile file)
         {
+            Console.WriteLine($"Saved file: 开始保存图片"); // 🔹 日志输出
             if (file == null || file.Length == 0)
                 throw new ArgumentException("文件不能为空");
 
@@ -29,7 +30,9 @@
             {
                 string s = e.Message;
             }
-            return $"/uploads/{fileName}"; // 返回相对 URL，前端可以拼接域名
+
+            Console.WriteLine($"Saved file: {filePath}"); // 🔹 日志输出
+            return $"/uploads/{folder}/{fileName}"; // 返回相对 URL，前端可以拼接域名
         }
 
         public async Task<IEnumerable<string>> UploadManyAsync(IEnumerable<IFormFile> files)

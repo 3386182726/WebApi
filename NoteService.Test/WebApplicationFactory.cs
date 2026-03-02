@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestPlatform.TestHost;
 using NoteService.Data;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,18 +18,24 @@ namespace NoteService.Test
     public class CustomWebApplicationFactory
       : WebApplicationFactory<Program>, IAsyncLifetime
     {
-        private readonly MsSqlContainer _container;
-
-        public CustomWebApplicationFactory()
+        private  MsSqlContainer _container= default!;
+        public string ConnectionString => _container.GetConnectionString();
+        // 1️⃣ 初始化容器
+        public async Task InitializeAsync()
         {
             _container = new MsSqlBuilder()
                 .WithPassword("Test1234!")
                 .Build();
-        }
 
-        public async Task InitializeAsync()
-        {
             await _container.StartAsync();
+
+            // 2️⃣ 等容器启动后再跑迁移
+            var options = new DbContextOptionsBuilder<NoteDbContext>()
+                .UseSqlServer(ConnectionString)
+                .Options;
+
+            using var context = new NoteDbContext(options);
+            await context.Database.MigrateAsync();
         }
 
         public async Task DisposeAsync()

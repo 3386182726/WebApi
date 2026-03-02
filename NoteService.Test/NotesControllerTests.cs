@@ -1,11 +1,15 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using NoteService.Modules.Notes.Dto;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
+using static MassTransit.ValidationResultExtensions;
 
 namespace NoteService.Test
 {
@@ -42,6 +46,22 @@ namespace NoteService.Test
             Assert.NotNull(result);
             Assert.True(result.ContainsKey("url"));
             Assert.False(string.IsNullOrEmpty(result["url"]));
+        }
+
+        [Fact]
+        public async Task SaveNote_ShouldReturnOK()
+        {
+            var request =new NoteRequest
+            {
+                Name = "Test Note",
+                Category = null,
+                Content = "This is a test note.",
+            };
+
+
+            // 2️⃣ 发送 POST 请求
+            var response = await _client.PostAsJsonAsync("/api/note", request);
+            response.EnsureSuccessStatusCode();
         }
     }
 }

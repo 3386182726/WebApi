@@ -7,8 +7,6 @@ namespace NoteService.Modules.Notes.Model
         public string Id { get; set; } = null!;
         public required string Name { get; set; }
         public required string Content { get; set; }
-
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public NoteCategory? Category { get; set; }
         public DateTime CreatedAt { get; set; }
         public required string CreaterId { get; set; }

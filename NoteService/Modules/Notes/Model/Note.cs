@@ -7,6 +7,9 @@ namespace NoteService.Modules.Notes.Model
         public string Id { get; set; } = null!;
         public required string Name { get; set; }
         public required string Content { get; set; }
+
+        // 外键
+        public string? CategoryId { get; set; }
         public NoteCategory? Category { get; set; }
         public DateTime CreatedAt { get; set; }
         public required string CreaterId { get; set; }

@@ -63,21 +63,23 @@ namespace UserService.Modules.Users
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto dto)
         {
+            Console.WriteLine($"用户开始登录：{dto.Username}");
             var user = await userService.ValidateUserAsync(dto);
             if (user == null)
                 return Unauthorized();
+            Console.WriteLine($"已查找到用户：{dto.Username}");
             var roles = await userManager.GetRolesAsync(user);
             // 生成 JWT
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!);
 
-            var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, user.Id) };
+            var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, user.Id), new Claim(ClaimTypes.Name, user.UserName!) };
             // 循环添加角色
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
-
+            Console.WriteLine();
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),

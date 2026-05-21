@@ -15,11 +15,11 @@ namespace NoteService.Test
 {
     public class NotesControllerTests(CustomWebApplicationFactory factory) : IClassFixture<CustomWebApplicationFactory>
     {
-        public readonly HttpClient _client = factory.CreateClient();
-
+        
         [Fact]
         public async Task Upload_ShouldReturnUrl()
         {
+            var _client = factory.CreateClient();
             // 1️⃣ 模拟文件
             var content = new MultipartFormDataContent();
 
@@ -51,17 +51,43 @@ namespace NoteService.Test
         [Fact]
         public async Task SaveNote_ShouldReturnOK()
         {
+            var _client = factory.CreateClientWithTestAuth();
+            var categoryRequest=new NoteCategoryRequest
+            { Name = "Test Category" };
+            var categoryResult = await _client.PostAsJsonAsync("/api/note/noteCategory", categoryRequest);
+            var categoryResponse = await categoryResult.Content.ReadFromJsonAsync<NoteCategoryResponse>();
+            Assert.NotNull(categoryResponse);
             var request =new NoteRequest
             {
                 Name = "Test Note",
-                Category = null,
+                CategoryId = categoryResponse.Id,
                 Content = "This is a test note.",
             };
 
-
             // 2️⃣ 发送 POST 请求
-            var response = await _client.PostAsJsonAsync("/api/note", request);
-            response.EnsureSuccessStatusCode();
+            var  result = await _client.PostAsJsonAsync("/api/note", request);
+            result.EnsureSuccessStatusCode();
+            var response = await result.Content.ReadFromJsonAsync<NoteResponse>();
+            Assert.NotNull(response);
+        }
+
+        [Fact]
+        public async Task DeleteNote_ShouldReturnOK()
+        {
+            var _client = factory.CreateClientWithTestAuth();
+            var request = new NoteRequest
+            {
+                Name = "Test Note",
+                CategoryId = null,
+                Content = "This is a test note.",
+            };
+            // 2️⃣ 发送 POST 请求
+            var result = await _client.PostAsJsonAsync("/api/note", request);
+            result.EnsureSuccessStatusCode();
+            var response = await result.Content.ReadFromJsonAsync<NoteResponse>();
+            Assert.NotNull(response);
+            var result2 = await _client.DeleteAsync($"/api/note/{response.Id}");
+            Assert.Equal(System.Net.HttpStatusCode.NoContent, result2.StatusCode);
         }
     }
 }

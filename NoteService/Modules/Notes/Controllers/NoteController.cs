@@ -10,7 +10,7 @@ namespace NoteService.Modules.Notes.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class NoteController(IUploadService uploadService,IService<Note, NoteResponse> service) :ControllerBase
+    public class NoteController(IUploadService uploadService, IService<Note, NoteResponse> service) : ControllerBase
     {
         [HttpPost]
         [Route("upload")]
@@ -19,36 +19,39 @@ namespace NoteService.Modules.Notes.Controllers
             try
             {
                 var url = await uploadService.UploadAsync(file);
-                return Ok(new {
-                    errno= 0, 
-                data=new  {
-                                    url= url, // 图片 src ，必须
-                    alt="", // 图片描述文字，非必须
-                    href="" // 图片的链接，非必须
-                }
-                            });
-                        }
-            catch (Exception ex) {
+                return Ok(new
+                {
+                    errno = 0,
+                    data = new
+                    {
+                        url = url, // 图片 src ，必须
+                        alt = "", // 图片描述文字，非必须
+                        href = "" // 图片的链接，非必须
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
                 return Ok(new
                 {
                     errno = 1,
-                    message = "失败信息:"+ex.Message
+                    message = "失败信息:" + ex.Message
                 });
             }
-            
+
         }
 
         [HttpGet]
         public async Task<ActionResult<PagedResult<NoteResponse>>> GetNotes([FromQuery] PagedRequest pagedRequest)
         {
             var result = await service.GetListAsync(pagedRequest);
-            return Ok(result );
+            return Ok(result);
         }
         [HttpGet]
         [Route("{id}")]
         public async Task<IActionResult> GetNote(string id)
         {
-            var result = await service.GetByIdAsync(id);
+            var result = await service.GetResponseByIdAsync(id);
             return Ok(result);
         }
         [HttpPost]
@@ -63,9 +66,9 @@ namespace NoteService.Modules.Notes.Controllers
             var note = new Note()
             {
                 Name = noteRequest.Name,
-                Category = noteRequest.Category,
+                CategoryId = noteRequest.CategoryId,
                 Content = noteRequest.Content,
-                CreaterId = userId??string.Empty,
+                CreaterId = userId ?? string.Empty,
                 CreatedAt = DateTime.UtcNow,
             };
             if (string.IsNullOrEmpty(noteRequest.Id))
@@ -77,13 +80,24 @@ namespace NoteService.Modules.Notes.Controllers
                 note.Id = noteRequest.Id!;
                 service.Update(note);
             }
-            await service.SaveChangesAsync();
-            return Ok("保存成功");
+            Console.WriteLine("SaveChangesAsync-start");
+            try
+            {
+                await service.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("SaveChangesAsync-err:"+ex.Message);
+            }
+            Console.WriteLine("SaveChangesAsync-end");
+            var response = NoteResponse.FromNote(note, User.Identity?.Name ?? "Unknown");
+            return Ok(response);
         }
 
         [HttpDelete]
-        [Route("notes/{id}")]
-        public async Task<IActionResult> DeleteNoteAsync(string id) {
+        [Route("{id}")]
+        public async Task<IActionResult> DeleteNoteAsync(string id)
+        {
             var note = await service.GetByIdAsync(id);
             if (note == null)
                 return NotFound();

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using ProductService.Data;
 using ProductService.Modules.Products;
 
@@ -20,6 +21,9 @@ namespace ProductService
 
             builder.Services.AddProductService();
             builder.WebHost.UseUrls("http://0.0.0.0:8080");
+            builder.Services.AddHealthChecks()
+    .AddCheck("self", () => HealthCheckResult.Healthy())
+    .AddSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             var app = builder.Build();
             app.MapGet("/", () => "Hello Product!");
             // Configure the HTTP request pipeline.
@@ -31,7 +35,7 @@ namespace ProductService
             app.UseAuthorization();
 
             app.MapControllers();
-
+            app.MapHealthChecks("/health");
             app.Run();
         }
     }

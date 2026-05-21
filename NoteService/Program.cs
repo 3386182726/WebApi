@@ -2,11 +2,13 @@ using Common.Repository;
 using Common.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using NoteService.Data;
 using NoteService.Modules.Notes.Dto;
 using NoteService.Modules.Notes.Model;
 using NoteService.Modules.Notes.Repository;
+using NoteService.Modules.Notes.Service;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,7 +16,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddScoped<IService<Note, NoteResponse>, NoteService.Modules.Notes.Service.NoteService>();
 builder.Services.AddScoped<IRepository<Note, NoteResponse>, NoteRepository>();
+
+builder.Services.AddScoped<INoteCategoryService, NoteCategoryService>();
+builder.Services.AddScoped<INoteCategoryRepository, NoteCategoryRepository>();
+
 builder.Services.AddScoped<IUploadService, UploadService>();
+
 builder.Services.AddControllers();
 builder.Services.AddDbContext<NoteDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
@@ -40,6 +47,11 @@ builder.Services
            });
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddHealthChecks()
+    .AddCheck("self", () => HealthCheckResult.Healthy())
+    .AddSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -48,6 +60,9 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.UseStaticFiles();
+
+app.MapHealthChecks("/health");
+
 app.Run();
 
 public partial class Program { }

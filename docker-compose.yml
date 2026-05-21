@@ -10,7 +10,8 @@ services:
     build:
       context: .
       dockerfile: ProductService/Dockerfile
-
+    volumes:
+        - ./ProductService/wwwroot/uploads:/app/wwwroot/uploads
 
   apigateway:
     image: ${DOCKER_REGISTRY-}apigateway

@@ -3,23 +3,30 @@ using Common.Service;
 using Microsoft.AspNetCore.Mvc;
 using NoteService.Modules.Notes.Dto;
 using NoteService.Modules.Notes.Model;
+using NoteService.Modules.Notes.Service;
 
 namespace NoteService.Modules.Notes.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class NoteCategoryController(IService<NoteCategory, NoteCategoryRequest> service) : ControllerBase
+    [Route("api/note/[controller]")]
+    public class NoteCategoryController(INoteCategoryService service) : ControllerBase
     {
         [HttpGet]
-        public async Task<IActionResult> GetNoteCategories(PagedRequest pagedRequest)
+        public async Task<IActionResult> GetNoteCategories([FromQuery] PagedRequest pagedRequest)
         {
             var result = await service.GetListAsync(pagedRequest);
+            return Ok(result);
+        }
+        [HttpGet("all")]
+        public async Task<IActionResult> GetNoteCategories()
+        {
+            var result = await service.GetNoteCategoriesAsync();
             return Ok(result);
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetNoteCategory(string id)
         {
-            var result = await service.GetByIdAsync(id);
+            var result = await service.GetResponseByIdAsync(id);
             return Ok(result);
         }
         [HttpPost]
@@ -39,7 +46,8 @@ namespace NoteService.Modules.Notes.Controllers
                 service.Update(noteCategory);
             }
             await service.SaveChangesAsync();
-            return Ok("保存成功");
+            var response = NoteCategoryResponse.FromModel(noteCategory);
+            return Ok(response);
         }
         [HttpDelete]
         [Route("{id}")]

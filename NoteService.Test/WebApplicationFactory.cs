@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestPlatform.TestHost;
 using NoteService.Data;
+using NoteService.Test.TestAuthentication;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -58,6 +60,8 @@ namespace NoteService.Test
                 // 注入 Testcontainer 连接
                 services.AddDbContext<NoteDbContext>(options =>
                     options.UseSqlServer(_container.GetConnectionString()));
+                services.AddAuthentication(TestAuthHandler.AuthenticationScheme)
+                    .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.AuthenticationScheme, _ => { });
             });
         }
     }

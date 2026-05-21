@@ -6,6 +6,7 @@ namespace Common.Repository
         where T2 : class
     {
         Task<T?> GetByIdAsync(string id);
+        Task<T2?> GetResponseByIdAsync(string id);
         Task<PagedResult<T2>> GetListAsync(PagedRequest pagedRequest);
         void Create(T entity);
         void Update(T entity);

@@ -118,7 +118,7 @@ namespace ApiGateway
 
             // สนำร Ocelot
             await app.UseOcelot();
-
+            app.MapHealthChecks("/health");
             app.Run();
         }
     }

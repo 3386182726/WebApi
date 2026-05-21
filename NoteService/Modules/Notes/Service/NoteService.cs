@@ -13,6 +13,10 @@ namespace NoteService.Modules.Notes.Service
         {
             return await repository.GetByIdAsync(id);
         }
+        public async Task<NoteResponse?> GetResponseByIdAsync(string id)
+        {
+            return await repository.GetResponseByIdAsync(id);
+        }
 
         public async Task<PagedResult<NoteResponse>> GetListAsync(PagedRequest pagedRequest)
         {

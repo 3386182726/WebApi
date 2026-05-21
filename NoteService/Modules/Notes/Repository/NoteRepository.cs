@@ -12,29 +12,39 @@ namespace NoteService.Modules.Notes.Repository
 {
     public class NoteRepository(NoteDbContext dbContext) : IRepository<Note, NoteResponse>
     {
-
+        private IQueryable<NoteResponse> BuildNoteQuery()
+        {
+            return
+                from n in dbContext.Notes
+                join c in dbContext.NoteCategories on n.CategoryId equals c.Id into cat
+                from c in cat.DefaultIfEmpty()
+                join u in dbContext.Users on n.CreaterId equals u.OldUserId
+                select new NoteResponse
+                {
+                    Id = n.Id,
+                    Name = n.Name,
+                    CategoryName = c != null ? c.Name : null,
+                    CategoryId = n.CategoryId,
+                    Content = n.Content,
+                    CreaterName = u.Name ?? u.UserName,
+                    CreatedAt = n.CreatedAt
+                };
+        }
         public async Task<Note?> GetByIdAsync(string id)
         {
-            var query =
-               dbContext.Notes.Where(n => n.Id == id).FirstOrDefaultAsync();   
-            return await query;
+            return await dbContext.Notes
+        .FirstOrDefaultAsync(n => n.Id == id);
+        }
+        public async Task<NoteResponse?> GetResponseByIdAsync(string id)
+        {
+            return await BuildNoteQuery()
+        .FirstOrDefaultAsync(n => n.Id == id);
         }
         public async Task<PagedResult<NoteResponse>> GetListAsync(PagedRequest request)
         {
             int skip = (request.Page - 1) * request.PageSize;
 
-            var query =
-             from n in dbContext.Notes
-             join u in dbContext.Users on n.CreaterId equals u.OldUserId
-             select new NoteResponse
-             {
-                 Id = n.Id,
-                 Name = n.Name,
-                 Category = n.Category,
-                 Content = n.Content,
-                 CreaterName = u.Name ?? u.UserName,
-                 CreatedAt = n.CreatedAt
-             };
+            var query = BuildNoteQuery();
 
             // 1️⃣ 搜索过滤
             if (!string.IsNullOrEmpty(request.Search))
@@ -63,7 +73,7 @@ namespace NoteService.Modules.Notes.Repository
             else
             {
                 // 默认排序
-                query = query.OrderBy(u => u.Name);
+                query = query.OrderByDescending(u => u.CreatedAt);
             }
 
             var total = query.Count();

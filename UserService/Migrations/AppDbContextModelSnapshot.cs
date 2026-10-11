@@ -155,7 +155,7 @@ namespace UserService.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("WebApi.Modules.Menus.Model.Menu", b =>
+            modelBuilder.Entity("UserService.Modules.Menus.Model.Menu", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
@@ -178,7 +178,7 @@ namespace UserService.Migrations
                     b.ToTable("Menus");
                 });
 
-            modelBuilder.Entity("WebApi.Modules.Menus.Model.RoleMenu", b =>
+            modelBuilder.Entity("UserService.Modules.Menus.Model.RoleMenu", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
@@ -198,7 +198,34 @@ namespace UserService.Migrations
                     b.ToTable("RoleMenus");
                 });
 
-            modelBuilder.Entity("WebApi.Modules.Users.User", b =>
+            modelBuilder.Entity("UserService.Modules.Users.Model.UserBackgroundImage", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(450)")
+                        .HasDefaultValueSql("NEWID()");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UserBackgroundImages");
+                });
+
+            modelBuilder.Entity("UserService.Modules.Users.User", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -280,7 +307,7 @@ namespace UserService.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("WebApi.Modules.Users.User", null)
+                    b.HasOne("UserService.Modules.Users.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -289,7 +316,7 @@ namespace UserService.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("WebApi.Modules.Users.User", null)
+                    b.HasOne("UserService.Modules.Users.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -304,7 +331,7 @@ namespace UserService.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WebApi.Modules.Users.User", null)
+                    b.HasOne("UserService.Modules.Users.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -313,7 +340,7 @@ namespace UserService.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("WebApi.Modules.Users.User", null)
+                    b.HasOne("UserService.Modules.Users.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

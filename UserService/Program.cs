@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using UserService.Data;
@@ -30,19 +31,19 @@ namespace UserService
                 .AddEntityFrameworkStores<UserDbContext>()
                 .AddDefaultTokenProviders();
 
-            // Ìí¼Ó Cookie ÈÏÖ¤
+            // æ·»åŠ  Cookie è®¤è¯
             //builder
             //    .Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             //    .AddCookie(options =>
             //    {
-            //        options.Cookie.Name = ".AspNetCore.Cookies"; // Óëä¯ÀÀÆ÷Ò»ÖÂ
-            //        options.LoginPath = "/api/user/login"; // Î´ÈÏÖ¤ÖØ¶¨ÏòÂ·¾¶£¨¿ÉÑ¡£©
-            //        options.LogoutPath = "/api/user/logout"; // µÇ³öÂ·¾¶
-            //        options.Cookie.HttpOnly = true; // ·À JS »ñÈ¡
+            //        options.Cookie.Name = ".AspNetCore.Cookies"; // ä¸æµè§ˆå™¨ä¸€è‡´
+            //        options.LoginPath = "/api/user/login"; // æœªè®¤è¯é‡å®šå‘è·¯å¾„ï¼ˆå¯é€‰ï¼‰
+            //        options.LogoutPath = "/api/user/logout"; // ç™»å‡ºè·¯å¾„
+            //        options.Cookie.HttpOnly = true; // é˜² JS è·å–
             //        options.Cookie.SameSite = SameSiteMode.None;
-            //        options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Éú²ú»·¾³ÆôÓÃ HTTPS
+            //        options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // ç”Ÿäº§ç¯å¢ƒå¯ç”¨ HTTPS
             //    });
-            // ÅäÖÃ JWT ÑéÖ¤²ÎÊı
+            // é…ç½® JWT éªŒè¯å‚æ•°
             builder
                 .Services.AddAuthentication(options =>
                 {
@@ -72,8 +73,8 @@ namespace UserService
                     policy =>
                     {
                         policy
-                            .WithOrigins("http://localhost:5173") // ÄãµÄÇ°¶ËµØÖ·
-                            .AllowCredentials() // ÔÊĞí´øÉÏ Cookie
+                            .WithOrigins("http://localhost:5173") // ä½ çš„å‰ç«¯åœ°å€
+                            .AllowCredentials() // å…è®¸å¸¦ä¸Š Cookie
                             .AllowAnyHeader()
                             .AllowAnyMethod();
                     }
@@ -88,15 +89,20 @@ namespace UserService
             {
                 x.UsingRabbitMq((context, cfg) =>
                 {
-                    cfg.Host("localhost", "/", host =>
-                    {
-                        host.Username("guest");
-                        host.Password("guest");
-                    });
+                    var rabbit = builder.Configuration.GetSection("RabbitMq");
+                    cfg.Host(
+                        rabbit["Host"] ?? "localhost",
+                        rabbit["VirtualHost"] ?? "/",
+                        h =>
+                        {
+                            h.Username(rabbit["Username"] ?? "guest");
+                            h.Password(rabbit["Password"] ?? "guest");
+                        });
                 });
             });
-
-            builder.WebHost.UseUrls("http://0.0.0.0:8080");
+            builder.Services.AddHealthChecks()
+            .AddCheck("self", () => HealthCheckResult.Healthy())
+            .AddSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 
             var app = builder.Build();
             app.MapGet("/", () => "Hello User!");
@@ -109,12 +115,13 @@ namespace UserService
 
             app.UseHttpsRedirection();
 
+            app.UseStaticFiles(); // å…è®¸è®¿é—® wwwroot ä¸‹çš„ä¸Šä¼ æ–‡ä»¶
             app.UseRouting();
-            // Ê¹ÓÃ CORS
+            // ä½¿ç”¨ CORS
             app.UseCors("AllowFrontend");
-            app.UseAuthentication(); // ±ØĞëÔÚ UseAuthorization Ç°
+            app.UseAuthentication(); // å¿…é¡»åœ¨ UseAuthorization å‰
             app.UseAuthorization();
-
+            app.MapHealthChecks("/health");
             app.MapControllers();
 
             app.Run();

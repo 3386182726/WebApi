@@ -1,29 +1,26 @@
-﻿using System.Reflection;
-using Common.Pagination;
+using Common.EFCore;
 using Microsoft.EntityFrameworkCore;
 using UserService.Data;
 using UserService.Modules.Users.Dto;
+using System.Linq.Expressions;
 
 namespace UserService.Modules.Users.Repository
 {
-    public class UserRepository(UserDbContext dbContext) : IUserRepository
+    public class UserRepository(UserDbContext dbContext)
+        : RepositoryBase<User, UserResponse, UserDbContext>(dbContext)
     {
-        public enum UserSortField
-        {
-            UserName,
-            Email,
-            Birthday,
-        }
+        protected override HashSet<string> AllowedFields { get; } = ["UserName", "Name", "Email"];
 
-        public async Task<PagedResult<UserResultDto>> GetUsersAsync(PagedRequest request)
-        {
-            int skip = (request.Page - 1) * request.PageSize;
+        protected override Expression<Func<UserResponse, object>> DefaultOrderBy
+            => x => x.UserName;
 
-            var query =
-                from u in dbContext.Users
-                join ur in dbContext.UserRoles on u.Id equals ur.UserId into urj
+        protected override IQueryable<UserResponse> BuildResponseQuery()
+        {
+            return
+                from u in DbContext.Users
+                join ur in DbContext.UserRoles on u.Id equals ur.UserId into urj
                 from ur in urj.DefaultIfEmpty()
-                join r in dbContext.Roles on ur.RoleId equals r.Id into rj
+                join r in DbContext.Roles on ur.RoleId equals r.Id into rj
                 from r in rj.DefaultIfEmpty()
                 group r by new
                 {
@@ -33,7 +30,7 @@ namespace UserService.Modules.Users.Repository
                     u.Name,
                     u.Birthday,
                 } into g
-                select new UserResultDto
+                select new UserResponse
                 {
                     Id = g.Key.Id,
                     UserName = g.Key.UserName,
@@ -42,48 +39,6 @@ namespace UserService.Modules.Users.Repository
                     Birthday = g.Key.Birthday,
                     Roles = g.Where(x => x != null).Select(x => x.Name).ToList(),
                 };
-
-            // 1️⃣ 搜索过滤
-            if (!string.IsNullOrEmpty(request.Search))
-            {
-                string lowerSearch = request.Search.ToLower();
-                query = query.Where(u =>
-                    u.UserName.ToLower().Contains(lowerSearch)
-                    || (u.Name != null && u.Name.ToLower().Contains(lowerSearch))
-                    || (u.Email != null && u.Email.ToLower().Contains(lowerSearch))
-                );
-            }
-
-            // 2️⃣ 排序
-            if (!string.IsNullOrEmpty(request.SortField))
-            {
-                var prop = typeof(UserResultDto).GetProperty(
-                    request.SortField,
-                    BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance
-                );
-                if (prop != null)
-                {
-                    query = request.SortDesc
-                        ? query.OrderByDescending(u => EF.Property<object>(u, prop.Name))
-                        : query.OrderBy(u => EF.Property<object>(u, prop.Name));
-                }
-            }
-            else
-            {
-                // 默认排序
-                query = query.OrderBy(u => u.UserName);
-            }
-
-            var total = query.Count();
-            var items = await query.Skip(skip).Take(request.PageSize).ToListAsync();
-
-            return new PagedResult<UserResultDto>
-            {
-                Total = total,
-                Page = request.Page,
-                PageSize = request.PageSize,
-                Items = items,
-            };
         }
     }
 }

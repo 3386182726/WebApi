@@ -6,7 +6,7 @@ using NoteService.Modules.Notes.Model;
 
 namespace NoteService.Modules.Notes.Consumer
 {
-    public class UserUpsertConsumer(NoteDbContext noteDbContext) : IConsumer<UserUpsertEvent>
+    public class UserUpsertConsumer(NoteDbContext noteDbContext, ILogger<UserUpsertConsumer> logger) : IConsumer<UserUpsertEvent>
     {
         public async Task Consume(ConsumeContext<UserUpsertEvent> context)
         {
@@ -26,6 +26,7 @@ namespace NoteService.Modules.Notes.Consumer
             };
             noteDbContext.Users.Add(user);
             await noteDbContext.SaveChangesAsync();
+            logger.LogInformation("User upserted: {UserId}", evt.UserId);
         }
     }
 }

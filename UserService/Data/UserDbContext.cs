@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using UserService.Modules.Menus.Model;
 using UserService.Modules.Users;
+using UserService.Modules.Users.Model;
 
 namespace UserService.Data
 {
@@ -12,6 +13,7 @@ namespace UserService.Data
     {
         public DbSet<Menu> Menus { get; set; }
         public DbSet<RoleMenu> RoleMenus { get; set; }
+        public DbSet<UserBackgroundImage> UserBackgroundImages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -25,6 +27,12 @@ namespace UserService.Data
 
             builder
                 .Entity<RoleMenu>()
+                .Property(m => m.Id)
+                .ValueGeneratedOnAdd()
+                .HasDefaultValueSql("NEWID()"); // SQL Server 上生成 Guid
+
+            builder
+                .Entity<UserBackgroundImage>()
                 .Property(m => m.Id)
                 .ValueGeneratedOnAdd()
                 .HasDefaultValueSql("NEWID()"); // SQL Server 上生成 Guid

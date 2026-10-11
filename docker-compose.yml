@@ -1,9 +1,21 @@
+# yaml-language-server: $schema=./compose-spec.json
 services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"    # AMQP
+      - "15672:15672"  # 管理界面
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
   userservice:
     image: ${DOCKER_REGISTRY-}userservice
     build:
       context: .
       dockerfile: UserService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:8080
+      - ASPNETCORE_ENVIRONMENT=Production 
 
   productservice:
     image: ${DOCKER_REGISTRY-}productservice
@@ -12,6 +24,10 @@ services:
       dockerfile: ProductService/Dockerfile
     volumes:
         - ./ProductService/wwwroot/uploads:/app/wwwroot/uploads
+    environment:
+      - ASPNETCORE_URLS=http://*:8080
+      - ASPNETCORE_ENVIRONMENT=Production 
+      - Observability__OtlpEndpoint=http://jaeger:4317
 
   apigateway:
     image: ${DOCKER_REGISTRY-}apigateway
@@ -29,4 +45,13 @@ services:
       dockerfile: NoteService/Dockerfile
     volumes:
       - ./NoteService/wwwroot/uploads:/app/wwwroot/uploads
+    environment:
+      - ASPNETCORE_URLS=http://*:8080
+      - ASPNETCORE_ENVIRONMENT=Production 
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"   # UI
+      - "4317:4317"     # OTLP gRPC
 

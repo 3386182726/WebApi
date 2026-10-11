@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace ProductService.Modules.Products.Model
 {
@@ -14,5 +15,8 @@ namespace ProductService.Modules.Products.Model
         public ProductStatus Status { get; set; }
         public DateTime CreatedAt { get; set; }
         public string[]? Imgs { get; set; }
+
+        [Timestamp]
+        public byte[] RowVersion { get; set; } = null!; // 并发令牌
     }
 }

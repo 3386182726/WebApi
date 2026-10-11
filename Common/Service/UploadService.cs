@@ -45,5 +45,29 @@
             }
             return urls;
         }
+
+        public void Delete(string? fileUrl)
+        {
+            if (string.IsNullOrWhiteSpace(fileUrl))
+                return;
+
+            var webRoot = env.WebRootPath ?? env.ContentRootPath;
+            var relativePath = fileUrl
+                .Replace('/', Path.DirectorySeparatorChar)
+                .TrimStart(Path.DirectorySeparatorChar);
+            var fullPath = Path.GetFullPath(Path.Combine(webRoot, relativePath));
+
+            // 防止路径越界删除 webRoot 之外的文件
+            if (
+                !fullPath.StartsWith(
+                    Path.GetFullPath(webRoot) + Path.DirectorySeparatorChar,
+                    StringComparison.OrdinalIgnoreCase
+                )
+            )
+                return;
+
+            if (File.Exists(fullPath))
+                File.Delete(fullPath);
+        }
     }
 }

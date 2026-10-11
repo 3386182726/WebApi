@@ -1,4 +1,4 @@
-﻿using Common.Pagination;
+using Common.Pagination;
 using Contracts.Event.User;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication;
@@ -28,7 +28,7 @@ namespace UserService.Modules.Users
     ) : ControllerBase
     {
         [HttpPost("login2")]
-        public async Task<IActionResult> Login2(LoginDto dto)
+        public async Task<IActionResult> Login2(LoginRequest dto)
         {
             // 验证用户名和密码
             var user = await userService.ValidateUserAsync(dto);
@@ -41,11 +41,11 @@ namespace UserService.Modules.Users
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDto dto)
+        public async Task<IActionResult> Register(RegisterRequest dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            var user = new User() { UserName = dto.UserName, Email = dto.Email };
+            var user = new User() { UserName = dto.UserName, Email = dto.Email};
             var result = await userManager.CreateAsync(user, dto.Password);
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
@@ -61,7 +61,7 @@ namespace UserService.Modules.Users
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDto dto)
+        public async Task<IActionResult> Login(LoginRequest dto)
         {
             Console.WriteLine($"用户开始登录：{dto.Username}");
             var user = await userService.ValidateUserAsync(dto);
@@ -99,7 +99,7 @@ namespace UserService.Modules.Users
 
         [Authorize(Roles = "Admin")]
         [HttpPost("create-user")]
-        public async Task<IActionResult> CreateUser(CreateDto dto)
+        public async Task<IActionResult> CreateUser(CreateUserRequest dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -123,7 +123,7 @@ namespace UserService.Modules.Users
             }
             else // 新建用户
             {
-                user = new User { UserName = dto.UserName, Email = dto.Email };
+                user = new User { UserName = dto.UserName, Email = dto.Email ,Name=dto.Name };
 
                 var password = configuration["DefaultUserPassword"]!;
                 var createResult = await userManager.CreateAsync(user, password);
@@ -166,13 +166,6 @@ namespace UserService.Modules.Users
             return Ok(new { message = "已登出" });
         }
 
-        [HttpPost("save")]
-        public async Task<IActionResult> Save([FromBody] LoginDto login)
-        {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return Ok(new { message = "已登出" });
-        }
-
         [HttpGet("me")]
         public async Task<IActionResult> GetCurrentUser()
         {
@@ -199,7 +192,7 @@ namespace UserService.Modules.Users
             var users = await userService.GetUsersAsync(request);
             return Ok(users);
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {

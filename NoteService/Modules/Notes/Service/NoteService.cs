@@ -1,5 +1,5 @@
-﻿using Common.Pagination;
-using Common.Repository;
+using Common.Pagination;
+using Common.Abstractions;
 using Common.Service;
 using NoteService.Modules.Notes.Dto;
 using NoteService.Modules.Notes.Model;

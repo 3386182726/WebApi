@@ -1,4 +1,4 @@
-﻿using UserService.Modules.Menus.Dto;
+using UserService.Modules.Menus.Dto;
 using UserService.Modules.Menus.Model;
 using UserService.Modules.Menus.Repository;
 
@@ -6,11 +6,11 @@ namespace UserService.Modules.Menus.Service
 {
     public static class MenuMapper
     {
-        public static List<MenuResultDto> BuildTree(List<Menu> menus)
+        public static List<MenuResponse> BuildTree(List<Menu> menus)
         {
             var dtoLookup = menus.ToDictionary(
                 m => m.Id,
-                m => new MenuResultDto
+                m => new MenuResponse
                 {
                     Id = m.Id,
                     Name = m.Name,
@@ -19,7 +19,7 @@ namespace UserService.Modules.Menus.Service
                 }
             );
 
-            List<MenuResultDto> roots = new();
+            List<MenuResponse> roots = new();
 
             foreach (var dto in dtoLookup.Values)
             {

@@ -1,4 +1,4 @@
-﻿using UserService.Modules.Menus.Dto;
+using UserService.Modules.Menus.Dto;
 using UserService.Modules.Menus.Model;
 using UserService.Modules.Roles.Dto;
 using UserService.Modules.Roles.Repository;
@@ -13,7 +13,7 @@ namespace UserService.Modules.Roles.Service
             return await roleRepository.GetMenusByRoleIdAsync(roleId);
         }
 
-        public async Task<List<RoleResultDto>> GetRolesWithMenus(List<string>? roleIds)
+        public async Task<List<RoleResponse>> GetRolesWithMenus(List<string>? roleIds)
         {
             return await roleRepository.GetRolesWithMenus(roleIds);
         }

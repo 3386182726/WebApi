@@ -1,5 +1,5 @@
-﻿using Common.Pagination;
-using Common.Repository;
+using Common.Pagination;
+using Common.Abstractions;
 using Common.Service;
 using NoteService.Modules.Notes.Dto;
 using NoteService.Modules.Notes.Model;
@@ -7,7 +7,7 @@ using NoteService.Modules.Notes.Repository;
 
 namespace NoteService.Modules.Notes.Service
 {
-    public class NoteCategoryService(INoteCategoryRepository repository) : INoteCategoryService
+    public class NoteCategoryService(IRepository<NoteCategory, NoteCategoryResponse> repository) : INoteCategoryService
     {
 
         public async Task<NoteCategory?> GetByIdAsync(string id)
@@ -43,7 +43,7 @@ namespace NoteService.Modules.Notes.Service
 
         public async Task<IEnumerable<NoteCategoryResponse>> GetNoteCategoriesAsync()
         {
-            var noteCategories = await repository.GetNoteCategoriesAsync();
+            var noteCategories = await repository.GetAllAsync();
             return noteCategories.Select(NoteCategoryResponse.FromModel);
         }
     }

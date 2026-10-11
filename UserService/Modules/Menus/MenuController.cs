@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using UserService.Modules.Menus.Dto;
@@ -23,7 +23,7 @@ namespace UserService.Modules.Menus
 
         [HttpPost("save")]
         [Authorize]
-        public async Task<IActionResult> SaveMenu(MenuPostDto dto)
+        public async Task<IActionResult> SaveMenu(MenuRequest dto)
         {
             if (!string.IsNullOrEmpty(dto.Id))
             {

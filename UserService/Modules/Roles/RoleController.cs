@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using UserService.Modules.Roles.Dto;
@@ -15,7 +15,7 @@ namespace UserService.Modules.Roles
         : ControllerBase
     {
         [HttpPost("save")]
-        public async Task<IActionResult> SaveRole([FromBody] RolePostDto role)
+        public async Task<IActionResult> SaveRole([FromBody] RoleRequest role)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

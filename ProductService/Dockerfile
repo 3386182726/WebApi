@@ -7,6 +7,8 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
+ENV ASPNETCORE_URLS=http://+:80
+
 
 # 此阶段用于生成服务项目
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
@@ -14,6 +16,7 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["ProductService/ProductService.csproj", "ProductService/"]
 COPY ["Common/Common.csproj", "Common/"]
+COPY ["Observability/Observability.csproj", "Observability/"]
 RUN dotnet restore "./ProductService/ProductService.csproj"
 COPY . .
 WORKDIR "/src/ProductService"

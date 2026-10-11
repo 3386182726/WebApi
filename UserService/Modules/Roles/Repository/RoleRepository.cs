@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
 using UserService.Data;
@@ -33,7 +33,7 @@ namespace UserService.Modules.Roles.Repository
             await appDbContext.RoleMenus.AddRangeAsync(roleMenus);
         }
 
-        public async Task<List<RoleResultDto>> GetRolesWithMenus(List<string>? roles)
+        public async Task<List<RoleResponse>> GetRolesWithMenus(List<string>? roles)
         {
             var rolesWithMenus = await (
                 from role in appDbContext.Roles
@@ -46,7 +46,7 @@ namespace UserService.Modules.Roles.Repository
                 {
                     Id = role.Id,
                     Name = role.Name!,
-                    Menu = new MenuResultDto
+                    Menu = new MenuResponse
                     {
                         Id = menu.Id,
                         Name = menu.Name,
@@ -55,11 +55,11 @@ namespace UserService.Modules.Roles.Repository
                 }
             )
                 .GroupBy(x => new { x.Id, x.Name })
-                .Select(g => new RoleResultDto
+                .Select(g => new RoleResponse
                 {
                     Id = g.Key.Id,
                     Name = g.Key.Name,
-                    Menus = g.Select(x => new MenuResultDto
+                    Menus = g.Select(x => new MenuResponse
                         {
                             Id = x.Menu.Id,
                             Name = x.Menu.Name,

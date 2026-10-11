@@ -1,8 +1,10 @@
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace ApiGateway
 {
@@ -13,22 +15,22 @@ namespace ApiGateway
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
-            // ×¢²á Ocelot
+            // æ³¨å†Œ Ocelot
             builder.Services.AddOcelot();
 
-            // Ìí¼Ó Cookie ÈÏÖ¤
+            // æ·»åŠ  Cookie è®¤è¯
             //builder
             //    .Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             //    .AddCookie(options =>
             //    {
-            //        options.Cookie.Name = ".AspNetCore.Cookies"; // Óëä¯ÀÀÆ÷Ò»ÖÂ
-            //        options.LoginPath = "/api/user/login"; // Î´ÈÏÖ¤ÖØ¶¨ÏòÂ·¾¶£¨¿ÉÑ¡£©
-            //        options.LogoutPath = "/api/user/logout"; // µÇ³öÂ·¾¶
-            //        options.Cookie.HttpOnly = true; // ·À JS »ñÈ¡
+            //        options.Cookie.Name = ".AspNetCore.Cookies"; // ä¸æµè§ˆå™¨ä¸€è‡´
+            //        options.LoginPath = "/api/user/login"; // æœªè®¤è¯é‡å®šå‘è·¯å¾„ï¼ˆå¯é€‰ï¼‰
+            //        options.LogoutPath = "/api/user/logout"; // ç™»å‡ºè·¯å¾„
+            //        options.Cookie.HttpOnly = true; // é˜² JS è·å–
             //        options.Cookie.SameSite = SameSiteMode.None;
-            //        options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Éú²ú»·¾³ÆôÓÃ HTTPS
+            //        options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // ç”Ÿäº§ç¯å¢ƒå¯ç”¨ HTTPS
             //    });
-            // ÅäÖÃ JWT ÑéÖ¤²ÎÊı
+            // é…ç½® JWT éªŒè¯å‚æ•°
             builder
                 .Services.AddAuthentication(options =>
                 {
@@ -50,17 +52,17 @@ namespace ApiGateway
                         ),
                     };
 
-                    // µ± Token Í¨¹ıÑéÖ¤ºóÖ´ĞĞ´ËÊÂ¼ş
+                    // å½“ Token é€šè¿‡éªŒè¯åæ‰§è¡Œæ­¤äº‹ä»¶
                     options.Events = new JwtBearerEvents
                     {
                         OnTokenValidated = context =>
                         {
-                            var userId = context.Principal?.FindFirst("sub")?.Value
-                                         ?? context.Principal?.FindFirst("UserId")?.Value;
+                            var userId =
+                             context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
 
                             if (!string.IsNullOrEmpty(userId))
                             {
-                                // ×¢Èëµ½ HttpContext£¬ÒÔ±ãÖĞ¼ä¼ş¶ÁÈ¡
+                                // æ³¨å…¥åˆ° HttpContextï¼Œä»¥ä¾¿ä¸­é—´ä»¶è¯»å–
                                 context.HttpContext.Items["UserId"] = userId;
                             }
 
@@ -76,34 +78,34 @@ namespace ApiGateway
                     policy =>
                     {
                         policy
-                            .WithOrigins("http://localhost:5173") // ÄãµÄÇ°¶ËµØÖ·
-                            .AllowCredentials() // ÔÊĞí´øÉÏ Cookie
+                            .WithOrigins("http://localhost:5173") // ä½ çš„å‰ç«¯åœ°å€
+                            .AllowCredentials() // å…è®¸å¸¦ä¸Š Cookie
                             .AllowAnyHeader()
                             .AllowAnyMethod();
                     }
                 );
             });
-
+            builder.Services.AddHealthChecks();
             var app = builder.Build();
 
             app.MapGet("/", () => "Hello ApiGateway ocelot!");
 
-            // Ê¹ÓÃ CORS
+            // ä½¿ç”¨ CORS
             app.UseCors("AllowFrontend");
 
-            app.UseAuthentication(); // ±ØĞëÔÚ UseAuthorization Ç°
+            app.UseAuthentication(); // å¿…é¡»åœ¨ UseAuthorization å‰
             app.UseAuthorization();
 
             app.Use(async (context, next) =>
             {
-                // ´¦ÀíÔ¤¼ìÇëÇó£¨CORS OPTIONS£©
+                // å¤„ç†é¢„æ£€è¯·æ±‚ï¼ˆCORS OPTIONSï¼‰
                 if (context.Request.Method == "OPTIONS")
                 {
                     context.Response.StatusCode = 200;
                     await context.Response.CompleteAsync();
                     return;
                 }
-                // °Ñ Token ÖĞ½âÎö³öµÄ UserId ×¢ÈëÏÂÓÎ Header
+                // æŠŠ Token ä¸­è§£æå‡ºçš„ UserId æ³¨å…¥ä¸‹æ¸¸ Header
                 if (context.Items.ContainsKey("UserId"))
                 {
                     var userId = context.Items["UserId"]?.ToString();
@@ -112,11 +114,12 @@ namespace ApiGateway
                         context.Request.Headers["X-UserId"] = userId;
                     }
                 }
-                // ¼ÌĞøÖ´ĞĞ¹ÜµÀ
+                // ç»§ç»­æ‰§è¡Œç®¡é“
                 await next();
             });
 
-            // Ê¹ÓÃ Ocelot
+
+            // ä½¿ç”¨ Ocelot
             await app.UseOcelot();
             app.MapHealthChecks("/health");
             app.Run();

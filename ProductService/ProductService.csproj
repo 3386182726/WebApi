@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.19" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.9">
@@ -26,9 +27,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\Observability\Observability.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Modules\Products\Extension\" />
     <Folder Include="wwwroot\" />
     <Folder Include="wwwroot\uploads\" />
   </ItemGroup>

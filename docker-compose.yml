@@ -8,6 +8,7 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+
   userservice:
     image: ${DOCKER_REGISTRY-}userservice
     build:
@@ -15,19 +16,27 @@ services:
       dockerfile: UserService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:8080
-      - ASPNETCORE_ENVIRONMENT=Production 
+      - ASPNETCORE_ENVIRONMENT=Production
+
+  fileservice:
+    image: ${DOCKER_REGISTRY-}fileservice
+    build:
+      context: .
+      dockerfile: FileService/Dockerfile
+    volumes:
+      - ./FileService/wwwroot/uploads:/app/wwwroot/uploads
+    environment:
+      - ASPNETCORE_URLS=http://*:8080
+      - ASPNETCORE_ENVIRONMENT=Production
 
   productservice:
     image: ${DOCKER_REGISTRY-}productservice
     build:
       context: .
       dockerfile: ProductService/Dockerfile
-    volumes:
-        - ./ProductService/wwwroot/uploads:/app/wwwroot/uploads
     environment:
       - ASPNETCORE_URLS=http://*:8080
-      - ASPNETCORE_ENVIRONMENT=Production 
-      - Observability__OtlpEndpoint=http://jaeger:4317
+      - ASPNETCORE_ENVIRONMENT=Production
 
   apigateway:
     image: ${DOCKER_REGISTRY-}apigateway
@@ -36,22 +45,18 @@ services:
       dockerfile: ApiGateway/Dockerfile
     ports:
       - "8080:8080"
-  
 
   noteservice:
     image: ${DOCKER_REGISTRY-}noteservice
     build:
       context: .
       dockerfile: NoteService/Dockerfile
-    volumes:
-      - ./NoteService/wwwroot/uploads:/app/wwwroot/uploads
     environment:
       - ASPNETCORE_URLS=http://*:8080
-      - ASPNETCORE_ENVIRONMENT=Production 
+      - ASPNETCORE_ENVIRONMENT=Production
 
   jaeger:
     image: jaegertracing/all-in-one:latest
     ports:
       - "16686:16686"   # UI
       - "4317:4317"     # OTLP gRPC
-

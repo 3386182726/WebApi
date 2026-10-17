@@ -40,8 +40,7 @@ namespace UserService.Modules.Roles.Repository
                 where roles == null || roles.Count == 0 || roles.Contains(role.Name!)
                 join rm in appDbContext.RoleMenus on role.Id equals rm.RoleId into roleMenus
                 from rm in roleMenus.DefaultIfEmpty() // 左连接 RoleMenu
-                join menu in appDbContext.Menus on rm.MenuId equals menu.Id into menus
-                from menu in menus.DefaultIfEmpty() // 左连接 Menu
+                join menu in appDbContext.Menus on rm.MenuId equals menu.Id 
                 select new
                 {
                     Id = role.Id,
@@ -66,7 +65,7 @@ namespace UserService.Modules.Roles.Repository
                             Path = x.Menu.Path,
                         })
                         .ToList(),
-                })
+                }).OrderBy(x=>x.Name)
                 .ToListAsync();
 
             return rolesWithMenus;

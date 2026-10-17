@@ -20,6 +20,17 @@ namespace UserService.Modules.Menus
             var tree = MenuMapper.BuildTree(menus);
             return Ok(tree);
         }
+        [HttpDelete("{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteMenu(string id)
+        {
+            var menu = await menuRepository.GetAsync(id);
+            if (menu == null)
+                return NotFound("菜单不存在");
+            menuRepository.Delete(menu);
+            await menuRepository.SaveChangesAsync();
+            return Ok("菜单删除成功");
+        }
 
         [HttpPost("save")]
         [Authorize]

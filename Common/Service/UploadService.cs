@@ -2,7 +2,7 @@
 {
     public class UploadService(IWebHostEnvironment env) : IUploadService
     {
-        public async Task<string> UploadAsync(IFormFile file)
+        public async Task<string> UploadAsync(IFormFile file, string? ownerType = null, string? category = null, string? type = null)
         {
             Console.WriteLine($"Saved file: 开始保存图片"); // 🔹 日志输出
             if (file == null || file.Length == 0)
@@ -12,11 +12,17 @@
             if (!Directory.Exists("/uploads"))
                 Directory.CreateDirectory(uploadsFolder);
 
-            var isImage = file.ContentType.StartsWith("image/");
-            var folder = isImage ? "images" : "videos";
+            // 组合子目录：ownerType/category/type，逐层兜底
+            var subDir = file.ContentType.StartsWith("image/") ? "images" : "videos";
+            if (!string.IsNullOrEmpty(ownerType) && !string.IsNullOrEmpty(category) && !string.IsNullOrEmpty(type))
+                subDir = Path.Combine(ownerType, category, type);
+            else if (!string.IsNullOrEmpty(category) && !string.IsNullOrEmpty(type))
+                subDir = Path.Combine(category, type);
+            else if (!string.IsNullOrEmpty(type))
+                subDir = type;
 
             var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-            var filePath = Path.Combine(uploadsFolder, folder , fileName);
+            var filePath = Path.Combine(uploadsFolder, subDir, fileName);
             var directory = Path.GetDirectoryName(filePath);
             if (!Directory.Exists(directory))
             {
@@ -32,18 +38,7 @@
             }
 
             Console.WriteLine($"Saved file: {filePath}"); // 🔹 日志输出
-            return $"/uploads/{folder}/{fileName}"; // 返回相对 URL，前端可以拼接域名
-        }
-
-        public async Task<IEnumerable<string>> UploadManyAsync(IEnumerable<IFormFile> files)
-        {
-            var urls = new List<string>();
-            foreach (var file in files)
-            {
-                var url = await UploadAsync(file);
-                urls.Add(url);
-            }
-            return urls;
+            return $"/uploads/{subDir.Replace(Path.DirectorySeparatorChar, '/')}/{fileName}";
         }
 
         public void Delete(string? fileUrl)

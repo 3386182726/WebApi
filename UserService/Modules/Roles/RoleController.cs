@@ -46,7 +46,7 @@ namespace UserService.Modules.Roles
             return Ok("操作成功");
         }
 
-        [HttpDelete("delete")]
+        [HttpDelete("{roleId}")]
         public async Task<IActionResult> DeleteRole(string roleId)
         {
             var role = await roleManager.FindByIdAsync(roleId);
@@ -63,7 +63,7 @@ namespace UserService.Modules.Roles
         [HttpGet("all")]
         public IActionResult GetRoles()
         {
-            var result = roleManager.Roles.ToList();
+            var result = roleManager.Roles.ToList().OrderBy(x=>x.Name);
 
             return Ok(result);
         }

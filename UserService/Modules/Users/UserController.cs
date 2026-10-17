@@ -11,6 +11,7 @@ using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using UserService.Migrations;
 using UserService.Modules.Roles.Service;
 using UserService.Modules.Users.Dto;
 using UserService.Modules.Users.Service;
@@ -30,7 +31,6 @@ namespace UserService.Modules.Users
         [HttpPost("login2")]
         public async Task<IActionResult> Login2(LoginRequest dto)
         {
-            // 验证用户名和密码
             var user = await userService.ValidateUserAsync(dto);
             if (user == null)
                 return Unauthorized();
@@ -45,7 +45,7 @@ namespace UserService.Modules.Users
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            var user = new User() { UserName = dto.UserName, Email = dto.Email};
+            var user = new User() { UserName = dto.UserName, Email = dto.Email };
             var result = await userManager.CreateAsync(user, dto.Password);
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
@@ -69,17 +69,14 @@ namespace UserService.Modules.Users
                 return Unauthorized();
             Console.WriteLine($"已查找到用户：{dto.Username}");
             var roles = await userManager.GetRolesAsync(user);
-            // 生成 JWT
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!);
 
             var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, user.Id), new Claim(ClaimTypes.Name, user.UserName!) };
-            // 循环添加角色
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
-            Console.WriteLine();
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
@@ -106,24 +103,32 @@ namespace UserService.Modules.Users
 
             User? user;
 
-            if (!string.IsNullOrEmpty(dto.Id)) // 更新用户
+            if (!string.IsNullOrEmpty(dto.Id))
             {
                 user = await userManager.FindByIdAsync(dto.Id);
                 if (user == null)
                     return NotFound("用户不存在");
 
-                // 更新基本信息
                 user.UserName = dto.UserName;
                 user.Name = dto.Name;
+                user.Introduction = dto.Introduction;
                 user.Email = dto.Email;
+                user.OrganizationId = dto.OrganizationId;
 
                 var updateResult = await userManager.UpdateAsync(user);
                 if (!updateResult.Succeeded)
                     return BadRequest(updateResult.Errors);
             }
-            else // 新建用户
+            else
             {
-                user = new User { UserName = dto.UserName, Email = dto.Email ,Name=dto.Name };
+                user = new User
+                {
+                    UserName = dto.UserName,
+                    Email = dto.Email,
+                    Name = dto.Name,
+                    Introduction = dto.Introduction,
+                    OrganizationId = dto.OrganizationId,
+                };
 
                 var password = configuration["DefaultUserPassword"]!;
                 var createResult = await userManager.CreateAsync(user, password);
@@ -131,7 +136,6 @@ namespace UserService.Modules.Users
                     return BadRequest(createResult.Errors);
             }
 
-            // 添加角色（如果有）
             if (dto.Roles != null && dto.Roles.Count > 0)
             {
                 var currentRoles = await userManager.GetRolesAsync(user);
@@ -152,7 +156,7 @@ namespace UserService.Modules.Users
                 UserId = user.Id,
                 UserName = user.UserName,
                 Name = user?.Name,
-                IsDeleted =false
+                IsDeleted = false
             };
             await userService.PublishUserUpsertEventAsync(userUpsertEvent);
 
@@ -172,18 +176,17 @@ namespace UserService.Modules.Users
             if (User.Identity?.IsAuthenticated != true)
                 return Unauthorized(new { message = "未登录" });
 
-            var user = await userManager.GetUserAsync(User);
-            var roles = await userManager.GetRolesAsync(user!);
-            var rolesWithMenus = await roleService.GetRolesWithMenus(roles.ToList());
-            return Ok(
-                new
-                {
-                    name = user!.Name,
-                    username = user!.UserName,
-                    email = user.Email,
-                    roles = rolesWithMenus,
-                }
-            );
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            var user = await userService.GetCurrentUserAsync(userId);
+            if (user == null)
+                return NotFound("用户不存在");
+
+            user.RolesWithMenus = await roleService.GetRolesWithMenus(user.Roles);
+
+            return Ok(user);
         }
 
         [HttpGet("all")]
@@ -192,6 +195,7 @@ namespace UserService.Modules.Users
             var users = await userService.GetUsersAsync(request);
             return Ok(users);
         }
+
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(string id)
@@ -208,7 +212,7 @@ namespace UserService.Modules.Users
             var userUpsertEvent = new UserUpsertEvent
             {
                 UserId = user.Id,
-                UserName = user?.UserName??string.Empty,
+                UserName = user?.UserName ?? string.Empty,
                 Name = user?.Name,
                 IsDeleted = true
             };

@@ -37,5 +37,17 @@ namespace UserService.Modules.Users.Service
         {
             await publish.Publish(user);
         }
+
+        public async Task<UserResponse?> GetCurrentUserAsync(string userId)
+        {
+            return await userRepository.GetResponseByIdAsync(userId);
+        }
+
+        public async Task<List<UserResponse>> GetByOrganizationIdsAsync(IEnumerable<string> organizationIds)
+        {
+            var ids = organizationIds.ToHashSet();
+            if (ids.Count == 0) return [];
+            return await userRepository.QueryResponsesAsync(u => ids.Contains(u.OrganizationId!));
+        }
     }
 }

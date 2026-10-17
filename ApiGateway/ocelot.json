@@ -5,8 +5,6 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          //端口需要和docker-compose.yml里端口对应，其他service端口也一样。
-          //如果是f5本地调试不使用docker的话，ocelot.josn里的端口需要和launchSettings.json里配置的 applicationUrl 端口对应
           "Host": "userservice",
           "Port": 8080
         }
@@ -15,18 +13,18 @@
       "UpstreamHttpMethod": [ "GET", "POST", "DELETE" ]
     },
     {
-      "DownstreamPathTemplate": "/api/product/{everything}", // 网关转发给内部服务的路径
+      "DownstreamPathTemplate": "/api/file/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "productservice",
+          "Host": "fileservice",
           "Port": 8080
         }
       ],
-      "UpstreamPathTemplate": "/api/product/{everything}", // 外部访问网关用的路径
+      "UpstreamPathTemplate": "/api/file/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer", // 这里对应网关 JWT 配置
+        "AuthenticationProviderKey": "Bearer",
         "AllowedScopes": []
       },
       "RouteClaimsRequirement": {
@@ -38,12 +36,31 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
+          "Host": "fileservice",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/uploads/{everything}",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/product/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
           "Host": "productservice",
           "Port": 8080
         }
       ],
-      "UpstreamPathTemplate": "/product/uploads/{everything}",
-      "UpstreamHttpMethod": [ "GET" ]
+      "UpstreamPathTemplate": "/api/product/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "http://schemas.microsoft.com/ws/2008/06/identity/claims/role": "^(Admin|User)$"
+      }
     },
     {
       "DownstreamPathTemplate": "/api/note/{everything}",
@@ -56,30 +73,6 @@
       ],
       "UpstreamPathTemplate": "/api/note/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
-    },
-    {
-      "DownstreamPathTemplate": "/uploads/{everything}",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "noteservice",
-          "Port": 8080
-        }
-      ],
-      "UpstreamPathTemplate": "/note/uploads/{everything}",
-      "UpstreamHttpMethod": [ "GET" ]
-    },
-    {
-      "DownstreamPathTemplate": "/uploads/{everything}",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "userservice",
-          "Port": 8080
-        }
-      ],
-      "UpstreamPathTemplate": "/user/uploads/{everything}",
-      "UpstreamHttpMethod": [ "GET" ]
     }
   ],
   "GlobalConfiguration": {

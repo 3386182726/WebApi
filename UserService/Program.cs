@@ -7,6 +7,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using UserService.Data;
+using UserService.Modules.Organizations;
 using UserService.Modules.Roles;
 using UserService.Modules.Users;
 
@@ -21,6 +22,7 @@ namespace UserService
             // Add services to the container.
 
             builder.Services.AddControllers();
+            builder.Services.AddHttpClient();
 
             builder.Services.AddDbContext<UserDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
@@ -84,6 +86,7 @@ namespace UserService
             builder.Services.AddUserService();
             builder.Services.AddMenuService();
             builder.Services.AddRoleService();
+            builder.Services.AddOrganizationService();
 
             builder.Services.AddMassTransit(x =>
             {
@@ -102,7 +105,7 @@ namespace UserService
             });
             builder.Services.AddHealthChecks()
             .AddCheck("self", () => HealthCheckResult.Healthy())
-            .AddSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+            .AddSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")!);
 
             var app = builder.Build();
             app.MapGet("/", () => "Hello User!");

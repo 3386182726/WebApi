@@ -9,5 +9,7 @@ namespace UserService.Modules.Users.Service
         public Task<User?> ValidateUserAsync(LoginRequest dto);
         public Task<PagedResult<UserResponse>> GetUsersAsync(PagedRequest request);
         public Task PublishUserUpsertEventAsync(UserUpsertEvent user);
+        public Task<UserResponse?> GetCurrentUserAsync(string userId);
+        public Task<List<UserResponse>> GetByOrganizationIdsAsync(IEnumerable<string> organizationIds);
     }
 }

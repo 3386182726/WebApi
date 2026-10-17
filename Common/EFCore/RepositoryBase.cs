@@ -69,6 +69,11 @@ namespace Common.EFCore
             };
         }
 
+        public virtual async Task<List<TResponse>> QueryResponsesAsync(Expression<Func<TResponse, bool>> predicate)
+        {
+            return await BuildResponseQuery().Where(predicate).ToListAsync();
+        }
+
         public virtual void Create(TEntity entity) => Set.Add(entity);
         public virtual void Update(TEntity entity) => Set.Update(entity);
         public virtual void Remove(TEntity entity) => Set.Remove(entity);

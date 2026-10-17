@@ -1,10 +1,10 @@
-﻿using System.Data;
+using System.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using UserService.Modules.Organizations;
 using UserService.Modules.Menus.Model;
 using UserService.Modules.Users;
-using UserService.Modules.Users.Model;
 
 namespace UserService.Data
 {
@@ -13,7 +13,7 @@ namespace UserService.Data
     {
         public DbSet<Menu> Menus { get; set; }
         public DbSet<RoleMenu> RoleMenus { get; set; }
-        public DbSet<UserBackgroundImage> UserBackgroundImages { get; set; }
+        public DbSet<Organization> Organizations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -23,19 +23,19 @@ namespace UserService.Data
                 .Entity<Menu>()
                 .Property(m => m.Id)
                 .ValueGeneratedOnAdd()
-                .HasDefaultValueSql("NEWID()"); // SQL Server 上生成 Guid
+                .HasDefaultValueSql("NEWID()");
 
             builder
                 .Entity<RoleMenu>()
                 .Property(m => m.Id)
                 .ValueGeneratedOnAdd()
-                .HasDefaultValueSql("NEWID()"); // SQL Server 上生成 Guid
+                .HasDefaultValueSql("NEWID()");
 
             builder
-                .Entity<UserBackgroundImage>()
+                .Entity<Organization>()
                 .Property(m => m.Id)
                 .ValueGeneratedOnAdd()
-                .HasDefaultValueSql("NEWID()"); // SQL Server 上生成 Guid
+                .HasDefaultValueSql("NEWID()");
         }
     }
 }

@@ -25,7 +25,10 @@ namespace UserService.Modules.Menus.Repository
         {
             appDbContext.Menus.Update(menu);
         }
-
+        public void Delete(Menu menu)
+        {
+            appDbContext.Menus.Remove(menu);
+        }
         public async Task<int> SaveChangesAsync()
         {
             return await appDbContext.SaveChangesAsync();

@@ -1,4 +1,5 @@
 using Common.Pagination;
+using System.Linq.Expressions;
 
 namespace Common.Abstractions
 {
@@ -10,6 +11,7 @@ namespace Common.Abstractions
         Task<IEnumerable<TEntity>> GetAllAsync();
         Task<TResponse?> GetResponseByIdAsync(string id);
         Task<PagedResult<TResponse>> GetListAsync(PagedRequest pagedRequest);
+        Task<List<TResponse>> QueryResponsesAsync(Expression<Func<TResponse, bool>> predicate);
         void Create(TEntity entity);
         void Update(TEntity entity);
         void Remove(TEntity entity);

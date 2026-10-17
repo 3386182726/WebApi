@@ -9,7 +9,10 @@ public class CreateUserRequest
 
     public string? Name { get; set; }
 
+    public string? Introduction { get; set; }
+
     [EmailAddress]
     public required string Email { get; set; }
+    public string? OrganizationId { get; set; }
     public List<string> Roles { get; set; } = [];
 }

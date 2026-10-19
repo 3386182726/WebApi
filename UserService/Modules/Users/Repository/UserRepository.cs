@@ -1,19 +1,16 @@
 using Common.EFCore;
-using Common.Models;
-using Common.Pagination;
-using System.Net.Http.Json;
-using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using UserService.Data;
 using UserService.Modules.Users.Dto;
-using System.Linq.Expressions;
 
 namespace UserService.Modules.Users.Repository
 {
-    public class UserRepository(
-        UserDbContext dbContext,
-        IHttpClientFactory httpClientFactory,
-        IConfiguration configuration
-    ) : RepositoryBase<User, UserResponse, UserDbContext>(dbContext)
+    /// <summary>
+    /// 纯数据库访问：只负责 User 表 + Role + Organization 的 EF 查询，
+    /// 跨服务图片组装由 UserService 负责。
+    /// </summary>
+    public class UserRepository(UserDbContext dbContext)
+        : RepositoryBase<User, UserResponse, UserDbContext>(dbContext)
     {
         protected override HashSet<string> AllowedFields { get; } = ["UserName", "Name", "Email"];
 
@@ -53,65 +50,5 @@ namespace UserService.Modules.Users.Repository
                     Roles = g.Where(x => x.r != null).Select(x => x.r.Name!).ToList(),
                 };
         }
-
-        public override async Task<UserResponse?> GetResponseByIdAsync(string id)
-        {
-            var user = await base.GetResponseByIdAsync(id);
-            if (user != null)
-                await FillAppFilesAsync([user]);
-            return user;
-        }
-
-        public override async Task<PagedResult<UserResponse>> GetListAsync(PagedRequest request)
-        {
-            var result = await base.GetListAsync(request);
-            if (result.Items.Count > 0)
-                await FillAppFilesAsync(result.Items);
-            return result;
-        }
-
-        public override async Task<List<UserResponse>> QueryResponsesAsync(Expression<Func<UserResponse, bool>> predicate)
-        {
-            var users = await base.QueryResponsesAsync(predicate);
-            if (users.Count > 0)
-                await FillAppFilesAsync(users);
-            return users;
-        }
-
-        private async Task FillAppFilesAsync(IEnumerable<UserResponse> users)
-        {
-            var userIds = users.Select(u => u.Id).ToList();
-            if (userIds.Count == 0) return;
-
-            var baseUrl = configuration["FileService:BaseUrl"] ?? "http://fileservice:8080";
-            using var httpClient = httpClientFactory.CreateClient();
-
-            var query = new FileQueryRequest
-            {
-                OwnerType = AppFileConstants.OwnerTypeUser,
-                OwnerIds = userIds,
-                Category = AppFileConstants.CategoryImage,
-            };
-
-            var response = await httpClient.PostAsJsonAsync($"{baseUrl}/api/file/query", query);
-            response.EnsureSuccessStatusCode();
-
-            var allFiles = await response.Content.ReadFromJsonAsync<List<AppFileResponse>>() ?? [];
-            var grouped = allFiles.GroupBy(f => f.OwnerId);
-
-            foreach (var user in users)
-            {
-                var files = grouped.FirstOrDefault(g => g.Key == user.Id)?.ToList() ?? [];
-                user.Avatars = files.Where(f => f.Type == AppFileConstants.TypeAvatar).ToList();
-                user.Photos = files.Where(f => f.Type == AppFileConstants.TypePhoto).ToList();
-            }
-        }
-    }
-
-    public class FileQueryRequest
-    {
-        public required string OwnerType { get; set; }
-        public required List<string> OwnerIds { get; set; } = [];
-        public string? Category { get; set; }
     }
 }

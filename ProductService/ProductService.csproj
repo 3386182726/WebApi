@@ -27,7 +27,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
-    <ProjectReference Include="..\Observability\Observability.csproj" />
   </ItemGroup>
 
   <ItemGroup>

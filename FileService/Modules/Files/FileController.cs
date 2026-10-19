@@ -152,11 +152,4 @@ namespace FileService.Modules.Files
             CreatedAt = f.CreatedAt,
         };
     }
-
-    public class FileQueryRequest
-    {
-        public required string OwnerType { get; set; }
-        public required List<string> OwnerIds { get; set; } = [];
-        public string? Category { get; set; }
-    }
 }

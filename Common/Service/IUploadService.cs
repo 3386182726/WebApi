@@ -1,4 +1,6 @@
-﻿namespace Common.Service
+using Microsoft.AspNetCore.Http;
+
+namespace Common.Service
 {
     public interface IUploadService
     {

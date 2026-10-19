@@ -85,7 +85,7 @@ public class OrganizationService(
 
         using var httpClient = httpClientFactory.CreateClient();
 
-        var query = new UserService.Modules.Users.Repository.FileQueryRequest
+        var query = new FileQueryRequest
         {
             OwnerType = ownerType,
             OwnerIds = ownerIds,

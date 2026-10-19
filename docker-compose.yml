@@ -38,6 +38,15 @@ services:
       - ASPNETCORE_URLS=http://*:8080
       - ASPNETCORE_ENVIRONMENT=Production
 
+  dictionaryservice:
+    image: ${DOCKER_REGISTRY-}dictionaryservice
+    build:
+      context: .
+      dockerfile: DictionaryService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:8080
+      - ASPNETCORE_ENVIRONMENT=Production
+
   apigateway:
     image: ${DOCKER_REGISTRY-}apigateway
     build:
@@ -54,9 +63,3 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:8080
       - ASPNETCORE_ENVIRONMENT=Production
-
-  jaeger:
-    image: jaegertracing/all-in-one:latest
-    ports:
-      - "16686:16686"   # UI
-      - "4317:4317"     # OTLP gRPC

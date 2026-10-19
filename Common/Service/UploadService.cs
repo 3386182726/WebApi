@@ -1,4 +1,7 @@
-﻿namespace Common.Service
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+
+namespace Common.Service
 {
     public class UploadService(IWebHostEnvironment env) : IUploadService
     {

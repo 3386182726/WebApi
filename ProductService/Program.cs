@@ -3,9 +3,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
-using Observability;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
 using ProductService.Data;
 using ProductService.Modules.Products;
 using System.Text;
@@ -55,10 +52,6 @@ namespace ProductService
             builder.Services.AddHealthChecks()
     .AddCheck("self", () => HealthCheckResult.Healthy())
     .AddSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")!);
-
-            builder.Services.AddObservability(
-    builder.Configuration,
-    options => options.ServiceName = "ProductService");
 
             var app = builder.Build();
             app.MapGet("/", () => "Hello Product!");

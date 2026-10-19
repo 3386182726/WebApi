@@ -10,6 +10,7 @@ namespace Common.Models
         public const string OwnerTypeOrganization = "Organization";
         public const string OwnerTypeProduct = "Product";
         public const string OwnerTypeOrder = "Order";
+        public const string OwnerTypeDictionary = "Dictionary";
 
         // Category — 资源种类，决定中间目录
         public const string CategoryImage = "Image";

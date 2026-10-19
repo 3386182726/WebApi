@@ -44,6 +44,18 @@
       "UpstreamHttpMethod": [ "GET" ]
     },
     {
+      "DownstreamPathTemplate": "/api/dictionary/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "dictionaryservice",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/api/dictionary/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
+    },
+    {
       "DownstreamPathTemplate": "/api/product/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
